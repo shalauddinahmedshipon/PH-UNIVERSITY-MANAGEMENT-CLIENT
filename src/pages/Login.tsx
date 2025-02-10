@@ -54,7 +54,7 @@ try {
    <Row justify={"center"} align={"middle"} style={{height:"100vh"}}>
    <PHForm onSubmit={onSubmit} defaultValues={defaultValues}>
     
-    <PHInput type={"text"} name={"userId"} label={"userId"}/>
+    <PHInput type={"text"} name={"userId"} label={"Id"}/>
     <PHInput type={"password"} name={"password"} label={"Password"}/>
     <Button htmlType="submit">Login</Button>
 </PHForm>
