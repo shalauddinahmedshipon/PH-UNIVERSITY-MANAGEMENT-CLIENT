@@ -33,6 +33,7 @@ switch (user?.role) {
 }
   return (
     <Sider
+    style={{height:"100vh" ,position:"sticky",left:"0",top:"0"}}
     breakpoint="lg"
     collapsedWidth="0"
     onBreakpoint={(broken) => {
