@@ -1,11 +1,13 @@
-import { FieldValues, SubmitHandler } from "react-hook-form";
+import { Controller, FieldValues, SubmitHandler } from "react-hook-form";
 import PHForm from "../../../components/form/PHForm";
 import PHInput from "../../../components/form/PHInput";
-import { Button, Col, Divider, Row } from "antd";
+import { Button, Col, Divider, Form, Input, Row } from "antd";
 import PHSelect from "../../../components/form/PHSelect";
 import { bloodGroupsOptions, genderOptions } from "../../../constants/global";
 import PHDatePicker from "../../../components/form/PHDatePicker";
-import { useGetAllSemestersQuery } from "../../../redux/features/admin/academicManagement.api";
+import { useGetAcademicDepartmentsQuery, useGetAllSemestersQuery } from "../../../redux/features/admin/academicManagement.api";
+import { useAddStudentMutation } from "../../../redux/features/admin/userManagement.api";
+
 
 const studentDummyData={
   password: "123456",
@@ -56,7 +58,7 @@ const studentDefaultValues =  {
   bloodGroup: "O+",
 
 
-  email: "student2@gmail.com",
+  email: "newstuent2@gmail.com",
   contactNo: "1234567890",
   emergencyContactNo: "0987654321",
   presentAddress: "123 Main Street, Springfield",
@@ -81,18 +83,31 @@ const studentDefaultValues =  {
   admissionSemester: "67ae23cbb98472db1515fc83",
 }
 const CreateStudent = () => {
+  const [addStudent,{data,error}]= useAddStudentMutation();
   const {data:sData,isLoading:sIsLoading}= useGetAllSemestersQuery(undefined);
-  console.log(sData);
+  const {data:dData,isLoading:dIsLoading}= useGetAcademicDepartmentsQuery(undefined);
+  console.log(data,error);
   const semesterOptions =sData?.data?.map((item)=>({
     value:item._id,
     label:`${item.name} ${item.year}`
   }))
+  const departmentOptions =dData?.data?.map((item)=>({
+    value:item._id,
+    label:`${item.name}`
+  }))
+
   const onSubmit:SubmitHandler<FieldValues>=(data)=>{
    console.log(data);
-  
-  //  const formData = new FormData();
-  //  formData.append('data',JSON.stringify(data));
+  const studentData={
+    password:"123456",
+    student:data
+  }
+   const formData = new FormData();
+   formData.append('data',JSON.stringify(studentData));
+   formData.append('file',data.image);
+   addStudent(formData);
   //  console.log(Object.fromEntries(formData));
+  console.log(formData);
   }
 
   return (
@@ -109,6 +124,21 @@ const CreateStudent = () => {
           </Col>
           <Col span={24} md={12} lg={8}>
           <PHInput type="text" name="name.lastName" label="Last Name"/>
+          </Col>
+          <Col span={24} md={12} lg={8}>
+         <Controller
+         name="image"
+         render={({field:{onChange,value,...field}})=>(
+          <Form.Item label="Picture">
+            <Input
+             type="file" 
+             {...field}
+             value={value?.fileName}
+            onChange={(e)=>onChange(e.target.files?.[0])}
+            />
+          </Form.Item>
+         )}
+         />
           </Col>
           <Col span={24} md={12} lg={8}>
           <PHSelect options={genderOptions} name="gender" label="Gender"/>
@@ -171,11 +201,11 @@ const CreateStudent = () => {
 
           <Divider>Academic Info</Divider>
           <Col span={24} md={12} lg={8}>
-          <PHSelect disabled={sIsLoading} options={semesterOptions} name="academicSemester" label="AcademicSemester"/>
+          <PHSelect disabled={sIsLoading} options={semesterOptions} name="admissionSemester" label="Admission Semester"/>
           </Col>
-          {/* <Col span={24} md={12} lg={8}>
-          <PHSelect  options={semesterOptions} label="Academic Department"/>
-          </Col> */}
+          <Col span={24} md={12} lg={8}>
+          <PHSelect disabled={dIsLoading}  options={departmentOptions} label="Academic Department" name="academicDepartment"/>
+          </Col>
          
        
         </Row>
