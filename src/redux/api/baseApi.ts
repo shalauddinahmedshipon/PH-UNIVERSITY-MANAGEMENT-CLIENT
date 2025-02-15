@@ -2,6 +2,7 @@ import { BaseQueryApi, BaseQueryFn, createApi, DefinitionType, FetchArgs, fetchB
 import { RootState } from "../store";
 import { logout, setUser } from "../features/auth/authSlice";
 import { toast } from "sonner";
+// import { TResponse } from "../../types/global";
 
 
 const baseQuery =fetchBaseQuery({
@@ -21,9 +22,9 @@ FetchArgs,
 BaseQueryApi,
 DefinitionType
 >= async(args,api,extraOptions):Promise<any>=>{
-  let result =await baseQuery(args,api,extraOptions);
+  let result =await baseQuery(args,api,extraOptions) ;
   if(result?.error?.status===404){
-    toast.error("user is not found!")
+    toast.error(result?.error?.data?.message)
   }
   if(result?.error?.status===401){
     console.log("send refresh token!");
@@ -43,7 +44,7 @@ if(data?.data?.accessToken){
      token:data.data.accessToken
    })
   )
- result = await baseQuery(args,api,extraOptions); 
+ result = await baseQuery(args,api,extraOptions) ; 
 }else{
   api.dispatch(logout());
      }
