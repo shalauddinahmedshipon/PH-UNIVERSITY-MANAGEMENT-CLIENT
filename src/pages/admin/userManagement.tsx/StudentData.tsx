@@ -4,13 +4,14 @@ import type { TableColumnsType, TableProps } from 'antd';
 import { useState } from "react";
 import { TQueryParam, TStudent } from "../../../types";
 import { useGetAllStudentsQuery } from "../../../redux/features/admin/userManagement.api";
+import { Link } from 'react-router-dom';
 
 
-export type TTableData =Pick<TStudent,"name"|"id">;
+export type TTableData =Pick<TStudent,"fullName"|"id"|"email"|"contactNo">;
 
 const StudentData = () => {
   const [params,setParams]= useState<TQueryParam[]>([]);
-  const [page,setPage]= useState(3)
+  const [page,setPage]= useState(1)
   const {data:studentData,isFetching} = useGetAllStudentsQuery([
     {name:"limit",value:3},
     {name:"page",value:page},
@@ -18,10 +19,12 @@ const StudentData = () => {
     ...params]);
   console.log(studentData);
 const metaData =studentData?.meta;
-const tableData = studentData?.data?.map(({id,_id,fullName})=>({
+const tableData = studentData?.data?.map(({id,_id,fullName,email,contactNo})=>({
  key:_id,
  id,
- fullName
+ fullName,
+ email,
+ contactNo
 }))
 
   
@@ -39,12 +42,23 @@ const tableData = studentData?.data?.map(({id,_id,fullName})=>({
       dataIndex: 'id', 
     },
     {
+      title: 'Email',
+      key:'email',
+      dataIndex: 'email', 
+    },
+    {
+      title: 'Contact No.',
+      key:'contactNo',
+      dataIndex:'contactNo', 
+    },
+    {
       title: 'Action',
       key:'x',
-     render:()=>{
+     render:(item)=>{
+      console.log(item);
       return(
         <Space>
-          <Button>Update</Button>
+          <Link to={`/admin/student-data/${item.key}`}><Button>Update</Button></Link>
           <Button>Details</Button>
           <Button>Block</Button>
         </Space>
