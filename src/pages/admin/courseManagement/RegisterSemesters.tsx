@@ -1,21 +1,43 @@
 
-import { Button, Table } from 'antd';
-import type { TableColumnsType, TableProps } from 'antd';
-import { TAcademicSemester } from "../../../types/academicManagement.type";
+import { Button, Dropdown, Table, Tag } from 'antd';
+import type { TableColumnsType} from 'antd';
 import { useGetAllRegisterSemesterQuery } from '../../../redux/features/admin/courseManagement.Api';
+import moment from 'moment';
+import { TSemester } from '../../../types';
 
 
-export type TTableData =Pick<TAcademicSemester,"name"|"startMonth"|"endMonth"|"year">;
-
+export type TTableData =Pick<TSemester,"startDate"|"endDate"|"status">
+const items=[
+  {
+    label:"UPCOMING",
+    key:"UPCOMING",
+  },
+  {
+    label:"ONGOING",
+    key:"ONGOING",
+  },
+  {
+    label:"ENDED",
+    key:"ENDED",
+  },
+]
 const RegisterSemesters = () => {
- const {data:semesterData,isLoading,isFetching}=useGetAllRegisterSemesterQuery(undefined)
+ const {data:semesterData,isFetching}=useGetAllRegisterSemesterQuery(undefined)
   console.log(semesterData)
 
 const tableData=semesterData?.data?.map(({_id,academicSemester,startDate,endDate,status})=>({
- key:_id,name:`${academicSemester?.name} ${academicSemester?.year}`,startDate,endDate,status
+ key:_id,name:`${academicSemester?.name} ${academicSemester?.year}`,
+ startDate:moment(new Date(startDate)).format('MMMM'),
+ endDate:moment(new Date(endDate)).format('MMMM'),
+ status
 }))
-
-  
+const handleStatusDropdown=(data)=>{
+  console.log(data)
+}
+const menuProps ={
+  items,
+  onClick:handleStatusDropdown,
+}  
   const columns: TableColumnsType<TTableData> = [
     {
       title: 'Name',
@@ -27,6 +49,13 @@ const tableData=semesterData?.data?.map(({_id,academicSemester,startDate,endDate
       title: 'Status',
       key:'status',
       dataIndex: 'status',
+      render:(item)=>{
+        let color;
+        if(item==='UPCOMING'){color='blue'}
+        if(item==='ONGOING'){color='green'}
+        if(item==='ENDED'){color='red'}
+        return <Tag color={color}>{item}</Tag>
+      }
     
     },
     {
@@ -44,9 +73,9 @@ const tableData=semesterData?.data?.map(({_id,academicSemester,startDate,endDate
       key:'x',
      render:()=>{
       return(
-        <div>
+        <Dropdown menu={menuProps}>
           <Button>Update</Button>
-        </div>
+        </Dropdown>
       )
      } 
     },
