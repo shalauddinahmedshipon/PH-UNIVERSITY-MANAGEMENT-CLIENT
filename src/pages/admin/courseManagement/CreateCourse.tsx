@@ -6,12 +6,12 @@ import { toast } from "sonner";
 import { TResponse } from "../../../types/global";
 import { useGetAllSemestersQuery } from "../../../redux/features/admin/academicManagement.api";
 import PHInput from "../../../components/form/PHInput";
-import { useAddRegisterSemesterMutation, useGetAllCoursesQuery } from "../../../redux/features/admin/courseManagement.Api";
+import { useAddCourseMutation, useGetAllCoursesQuery } from "../../../redux/features/admin/courseManagement.Api";
 import PHSelect from "../../../components/form/PHSelect";
 
 
 const CreateCourse = () => {
-  const [addSemester]=useAddRegisterSemesterMutation();
+  const [addCourse]=useAddCourseMutation();
   const {data:courses}=useGetAllCoursesQuery(undefined)
   const {data:academicSemester}= useGetAllSemestersQuery([{"name":"sort","value":"year"}]);
   console.log(academicSemester);
@@ -25,21 +25,23 @@ const preRequisiteCourseOptions=courses?.data?.map((item)=>({
      const toastId = toast.loading('creating...')
 
     const coursesData ={...data,
+      code:Number(data.code),
+      credits:Number(data.credits),
       isDeleted:false,
-    preRequisiteCourses:data.preRequisiteCourses.map(item=>({course:item,isDeleted:false}))
+    preRequisiteCourses:data?.preRequisiteCourses? data?.preRequisiteCourses?.map(item=>({course:item,isDeleted:false})):[]
     }
     console.log(coursesData);
-    // try {
-    //   console.log(semesterData);
-    //   const res = await addSemester(semesterData) as TResponse<any>;
-    //   console.log(res);
-    //   if(res.error){
-    //     toast.error(res.error.data.message,{id:toastId});
-    //   }
-    //   toast.success(res.data.message ,{id:toastId})
-    // } catch (error) {
-    //   toast.error('something went wrong!',{id:toastId})
-    // }
+    try {
+   
+      const res = await addCourse(coursesData) as TResponse<any>;
+      console.log(res);
+      if(res.error){
+        toast.error(res.error.data.message,{id:toastId});
+      }
+      toast.success(res.data.message ,{id:toastId})
+    } catch (error) {
+      toast.error('something went wrong!',{id:toastId})
+    }
  
   }
 
