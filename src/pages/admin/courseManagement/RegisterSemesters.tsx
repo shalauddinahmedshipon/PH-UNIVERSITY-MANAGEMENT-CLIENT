@@ -1,10 +1,9 @@
-
 import { Button, Dropdown, Table, Tag } from 'antd';
 import type { TableColumnsType} from 'antd';
-import { useGetAllRegisterSemesterQuery } from '../../../redux/features/admin/courseManagement.Api';
+import { useGetAllRegisterSemesterQuery, useUpdateRegisterSemesterMutation } from '../../../redux/features/admin/courseManagement.Api';
 import moment from 'moment';
 import { TSemester } from '../../../types';
-
+import { useState } from 'react';
 
 export type TTableData =Pick<TSemester,"startDate"|"endDate"|"status">
 const items=[
@@ -22,8 +21,10 @@ const items=[
   },
 ]
 const RegisterSemesters = () => {
+ const [semesterId,setSemesterId]=useState('');
  const {data:semesterData,isFetching}=useGetAllRegisterSemesterQuery(undefined)
-  console.log(semesterData)
+  console.log(semesterId)
+const [updateSemesterStatus]=useUpdateRegisterSemesterMutation();
 
 const tableData=semesterData?.data?.map(({_id,academicSemester,startDate,endDate,status})=>({
  key:_id,name:`${academicSemester?.name} ${academicSemester?.year}`,
@@ -31,12 +32,20 @@ const tableData=semesterData?.data?.map(({_id,academicSemester,startDate,endDate
  endDate:moment(new Date(endDate)).format('MMMM'),
  status
 }))
-const handleStatusDropdown=(data)=>{
-  console.log(data)
+const handleStatusUpdate=(data)=>{
+  console.log('semester',semesterId)
+  console.log('newStatus',data.key)
+  const updatedData={
+    id:semesterId,
+    data:{
+      status:data.key
+    }
+  }
+  updateSemesterStatus(updatedData);
 }
 const menuProps ={
   items,
-  onClick:handleStatusDropdown,
+  onClick:handleStatusUpdate,
 }  
   const columns: TableColumnsType<TTableData> = [
     {
@@ -71,32 +80,16 @@ const menuProps ={
     {
       title: 'Action',
       key:'x',
-     render:()=>{
+     render:(item)=>{
       return(
-        <Dropdown menu={menuProps}>
-          <Button>Update</Button>
+        <Dropdown menu={menuProps} trigger={['click']}>
+          <Button onClick={()=>setSemesterId(item.key)}>Update</Button>
         </Dropdown>
       )
      } 
     },
   ];
   
-  
-  // const onChange: TableProps<TTableData>['onChange'] = (_pagination, filters, _sorter, extra) => {
-  //   console.log({filters,extra});
-   
-  //  if(extra.action==='filter'){
-  //    const queryParams:TQueryParam[] =[];
-  //    filters.name?.forEach((item)=>
-  //     queryParams.push({name:'name',value:item})
-  //   );
-  //    filters.year?.forEach((item)=>
-  //     queryParams.push({name:'year',value:item})
-  //   );
-  //   console.log(queryParams);
-  //   setParams(queryParams);
-  //  }
-  // };
 
   return (
     <div>
@@ -105,7 +98,6 @@ const menuProps ={
     loading={isFetching}
     columns={columns}
     dataSource={tableData}
-    // onChange={onChange}
     showSorterTooltip={{ target: 'sorter-icon' }}
   />
     </div>

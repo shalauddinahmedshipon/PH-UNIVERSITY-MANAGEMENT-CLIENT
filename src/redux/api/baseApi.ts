@@ -57,7 +57,6 @@ if(data?.data?.accessToken){
 export const baseApi = createApi({
   reducerPath:'baseApi',
   baseQuery:baseQueryWithRefreshToken,
-  endpoints:()=>({
-  
-  })
+  endpoints:()=>({}),
+  tagTypes:['semester']
 })
