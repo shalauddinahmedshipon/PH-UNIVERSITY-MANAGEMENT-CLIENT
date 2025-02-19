@@ -10,15 +10,17 @@ type TPHSelectProps={
     label:string;
     disabled?:boolean
   }[] | undefined;
+  mode?:'multiple'|undefined
 }
 
-const PHSelect = ({label,name,options,disabled}:TPHSelectProps) => {
+const PHSelect = ({label,name,options,disabled,mode}:TPHSelectProps) => {
 
   return (
 <Controller
 name={name}
 render={({field,fieldState:{error}})=>( <Form.Item label={label}>
   <Select
+   mode={mode}
    disabled={disabled}
    style={{ width:"100%"}}
    {...field}
